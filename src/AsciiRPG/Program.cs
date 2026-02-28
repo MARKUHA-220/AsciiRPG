@@ -21,11 +21,15 @@ while (true)
             Console.Write("DM name: ");
             var dm = Console.ReadLine() ?? "DM";
             Console.Write("Start LAN host for ready flags? (y/n): ");
+            Console.Write("Имя DM: ");
+            var dm = Console.ReadLine() ?? "DM";
+            Console.Write("Запустить LAN-хост для флагов готовности? (y/n): ");
             var runHost = (Console.ReadLine() ?? "n").Equals("y", StringComparison.OrdinalIgnoreCase);
             CancellationTokenSource? cts = null;
             if (runHost)
             {
                 Console.Write("LAN host port: ");
+                Console.Write("Порт LAN-хоста: ");
                 var hostPort = int.TryParse(Console.ReadLine(), out var hp) ? hp : 5050;
                 cts = new CancellationTokenSource();
                 _ = lan.StartHostAsync(hostPort, cts.Token);
@@ -37,6 +41,11 @@ while (true)
             for (var i = 0; i < count; i++)
             {
                 Console.WriteLine($"Create character #{i + 1}");
+            Console.Write("Сколько локальных игроков (1-4): ");
+            var count = int.TryParse(Console.ReadLine(), out var c) ? Math.Clamp(c, 1, 4) : 1;
+            for (var i = 0; i < count; i++)
+            {
+                Console.WriteLine($"Создание персонажа #{i + 1}");
                 players.Add(menu.BuildCharacter());
             }
 
@@ -55,6 +64,7 @@ while (true)
             var nick = Console.ReadLine() ?? "Player";
             await lan.JoinAsync(host, port, nick);
             Console.WriteLine("Press Enter to return to menu");
+            Console.WriteLine("Нажмите Enter для возврата в меню");
             Console.ReadLine();
             break;
 
@@ -69,6 +79,16 @@ while (true)
             save.SaveCharacter(character, path);
             Console.WriteLine($"Saved: {path}");
             Console.WriteLine("Press Enter to return to menu");
+            Console.Write("Путь к сохранению персонажа (например saves/character.json): ");
+            var path = Console.ReadLine() ?? "saves/character.json";
+            var character = save.LoadCharacter(path) ?? menu.BuildCharacter();
+            Console.WriteLine($"Текущий персонаж: {character.Name} ({character.Race} {character.Class})");
+            Console.Write("Новое имя (Enter чтобы оставить): ");
+            var newName = Console.ReadLine();
+            if (!string.IsNullOrWhiteSpace(newName)) character.Name = newName;
+            save.SaveCharacter(character, path);
+            Console.WriteLine($"Сохранено: {path}");
+            Console.WriteLine("Нажмите Enter для возврата в меню");
             Console.ReadLine();
             break;
 

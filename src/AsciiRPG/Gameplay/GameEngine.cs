@@ -37,12 +37,15 @@ public class GameEngine
                 DrawMapForPlayer(state.Map, p);
                 Console.WriteLine($"Turn {state.TurnCounter}, player {p.Name}");
                 Console.Write("Command (w/a/s/d, inv, equip <name>, save, quit): ");
+                Console.WriteLine($"Ход {state.TurnCounter}, игрок {p.Name}");
+                Console.Write("Команда (w/a/s/d, inv, equip <name>, save, quit): ");
                 var cmd = Console.ReadLine() ?? "";
                 if (cmd == "quit") return;
                 if (cmd == "save")
                 {
                     _save.SaveGame(state, "saves/game_save.json");
                     Console.WriteLine("Game saved to saves/game_save.json");
+                    Console.WriteLine("Игра сохранена в saves/game_save.json");
                     continue;
                 }
 
@@ -52,12 +55,14 @@ public class GameEngine
                 if (state.Map.GetTile(p.Position).Type == TileType.Exit)
                 {
                     Console.WriteLine("Victory! You found the dungeon exit.");
+                    Console.WriteLine("Победа! Вы нашли выход из подземелья.");
                     return;
                 }
 
                 if (p.HitPoints <= 0)
                 {
                     Console.WriteLine($"{p.Name} has fallen. Game over.");
+                    Console.WriteLine($"{p.Name} пал. Игра окончена.");
                     return;
                 }
             }
@@ -84,6 +89,7 @@ public class GameEngine
         if (cmd == "inv")
         {
             Console.WriteLine("Inventory:");
+            Console.WriteLine("Инвентарь:");
             foreach (var item in p.Inventory.Items) Console.WriteLine($"- {item.Name}");
             return;
         }
@@ -104,11 +110,13 @@ public class GameEngine
                 var loot = _loot.RollLoot(p.Level);
                 p.Inventory.Items.Add(loot);
                 Console.WriteLine($"Chest: found item {loot.Name}");
+                Console.WriteLine($"Сундук: получен предмет {loot.Name}");
                 tile.Type = TileType.Room;
                 break;
             case TileType.Trigger:
                 p.Statuses.Add(new StatusEffect { Type = StatusType.Blessed, Duration = 3 });
                 Console.WriteLine("Trigger: Blessed status applied for 3 turns.");
+                Console.WriteLine("Триггер: на вас наложен статус Blessed на 3 хода.");
                 tile.Type = TileType.Room;
                 break;
             case TileType.EnemySpawn:
@@ -118,6 +126,7 @@ public class GameEngine
                 {
                     state.Enemies.Remove(enemy);
                     Console.WriteLine("Enemy defeated.");
+                    Console.WriteLine("Враг повержен.");
                     tile.Type = TileType.Room;
                 }
                 break;
@@ -154,6 +163,7 @@ public class GameEngine
         {
             Position = new Position(2, 2),
             Description = "Magic altar heals 5 HP",
+            Description = "Магический алтарь лечит на 5 HP",
             Effect = c => c.HitPoints = Math.Min(c.MaxHitPoints, c.HitPoints + 5)
         });
     }

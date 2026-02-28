@@ -13,6 +13,11 @@ public class MenuSystem
         Console.WriteLine("3. Character save editor");
         Console.WriteLine("4. Exit");
         Console.Write("Choice: ");
+        Console.WriteLine("1. Новая игра (DM)");
+        Console.WriteLine("2. LAN: подключиться как игрок");
+        Console.WriteLine("3. Редактор персонажа из сохранения");
+        Console.WriteLine("4. Выход");
+        Console.Write("Выбор: ");
         return int.TryParse(Console.ReadLine(), out var c) ? c : 4;
     }
 
@@ -25,6 +30,13 @@ public class MenuSystem
         var cls = int.TryParse(Console.ReadLine(), out var c) ? c : 0;
 
         Console.WriteLine("Race: 0-Human,1-Elf,2-Dwarf,3-Orc,4-Halfling");
+        Console.Write("Имя персонажа: ");
+        var name = Console.ReadLine() ?? "Hero";
+
+        Console.WriteLine("Класс: 0-Warrior,1-Mage,2-Rogue,3-Ranger,4-Cleric");
+        var cls = int.TryParse(Console.ReadLine(), out var c) ? c : 0;
+
+        Console.WriteLine("Раса: 0-Human,1-Elf,2-Dwarf,3-Orc,4-Halfling");
         var race = int.TryParse(Console.ReadLine(), out var r) ? r : 0;
 
         return new Character
@@ -38,6 +50,7 @@ public class MenuSystem
     public void ShowReadyMenu(Dictionary<string, bool> readyFlags)
     {
         Console.WriteLine("--- Player readiness ---");
+        Console.WriteLine("--- Готовность игроков ---");
         foreach (var kv in readyFlags)
             Console.WriteLine($"{kv.Key}: {(kv.Value ? "READY" : "WAIT")}");
     }

@@ -30,6 +30,35 @@ ASCII DnD-like RPG in C# with DM/player flow, LAN ready signaling, and save syst
 ## Build EXE
 
 > Requires .NET SDK 8+
+ASCII DnD-подобная RPG на C# с архитектурой под DM/игроков, LAN-сигналом готовности и системой сохранений.
+
+## Что реализовано
+
+- Генерация мира (комнаты + коридоры/туннели) и модификаторы комнат.
+- Бои по инициативе (пошагово), враги, статусы.
+- Сундуки, триггеры, система лута.
+- Инвентарь и экипировка (оружие/броня).
+- Классы и расы персонажа.
+- Редактор персонажа через файл сохранения.
+- Туман войны отдельно для каждого игрока.
+- Меню DM: выбор готовности, запуск хоста, режим редактора.
+- LAN мультиплеер (хост/клиент; события готовности).
+- Сохранение/загрузка игры и персонажа.
+
+## Понятная структура
+
+- `src/AsciiRPG/Core` — модели (карта, персонажи, инвентарь, статусы).
+- `src/AsciiRPG/Gameplay` — генерация, бой, лут, игровой движок.
+- `src/AsciiRPG/Network` — LAN сессия (TCP host/client).
+- `src/AsciiRPG/Persistence` — сохранения JSON.
+- `src/AsciiRPG/UI` — консольное меню и создание персонажа.
+- `saves/` — примеры сохранений.
+- `tools/build_windows.bat` — подготовка EXE.
+- `build/` — артефакты публикации.
+
+## Как получить EXE
+
+> Требуется .NET SDK 8+
 
 ### Windows
 
@@ -38,12 +67,14 @@ tools\build_windows.bat
 ```
 
 Result EXE:
+После этого EXE будет здесь:
 
 ```text
 build/win-x64/AsciiRPG.exe
 ```
 
 ### Manual publish
+### Вручную
 
 ```bash
 cd src/AsciiRPG
@@ -51,6 +82,7 @@ dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=
 ```
 
 ## Run from source
+## Запуск из исходников
 
 ```bash
 cd src/AsciiRPG

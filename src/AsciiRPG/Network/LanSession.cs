@@ -11,6 +11,7 @@ public class LanSession
         var listener = new TcpListener(IPAddress.Any, port);
         listener.Start();
         Console.WriteLine($"LAN host started on port {port}");
+        Console.WriteLine($"LAN хост запущен на порту {port}");
 
         while (!token.IsCancellationRequested)
         {
@@ -33,6 +34,7 @@ public class LanSession
         var msg = Encoding.UTF8.GetBytes($"READY:{playerName}");
         await stream.WriteAsync(msg);
         Console.WriteLine("Connected to host. Ready flag sent.");
+        Console.WriteLine("Подключено к хосту. Флаг готовности отправлен.");
     }
 
     private static async Task HandleClientAsync(TcpClient client, CancellationToken token)
@@ -43,5 +45,6 @@ public class LanSession
         var read = await stream.ReadAsync(buffer, token);
         var text = Encoding.UTF8.GetString(buffer, 0, read);
         Console.WriteLine($"LAN event: {text}");
+        Console.WriteLine($"LAN событие: {text}");
     }
 }
