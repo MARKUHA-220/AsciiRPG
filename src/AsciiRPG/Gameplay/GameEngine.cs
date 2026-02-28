@@ -162,7 +162,6 @@ public class GameEngine
         state.Triggers.Add(new TriggerEvent
         {
             Position = new Position(2, 2),
-            Description = "Magic altar heals 5 HP",
             Description = "Магический алтарь лечит на 5 HP",
             Effect = c => c.HitPoints = Math.Min(c.MaxHitPoints, c.HitPoints + 5)
         });

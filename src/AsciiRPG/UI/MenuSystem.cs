@@ -8,11 +8,6 @@ public class MenuSystem
     {
         Console.Clear();
         Console.WriteLine("=== ASCII DnD RPG ===");
-        Console.WriteLine("1. New game (DM)");
-        Console.WriteLine("2. LAN: join as player");
-        Console.WriteLine("3. Character save editor");
-        Console.WriteLine("4. Exit");
-        Console.Write("Choice: ");
         Console.WriteLine("1. Новая игра (DM)");
         Console.WriteLine("2. LAN: подключиться как игрок");
         Console.WriteLine("3. Редактор персонажа из сохранения");
@@ -23,13 +18,6 @@ public class MenuSystem
 
     public Character BuildCharacter()
     {
-        Console.Write("Character name: ");
-        var name = Console.ReadLine() ?? "Hero";
-
-        Console.WriteLine("Class: 0-Warrior,1-Mage,2-Rogue,3-Ranger,4-Cleric");
-        var cls = int.TryParse(Console.ReadLine(), out var c) ? c : 0;
-
-        Console.WriteLine("Race: 0-Human,1-Elf,2-Dwarf,3-Orc,4-Halfling");
         Console.Write("Имя персонажа: ");
         var name = Console.ReadLine() ?? "Hero";
 
@@ -49,7 +37,6 @@ public class MenuSystem
 
     public void ShowReadyMenu(Dictionary<string, bool> readyFlags)
     {
-        Console.WriteLine("--- Player readiness ---");
         Console.WriteLine("--- Готовность игроков ---");
         foreach (var kv in readyFlags)
             Console.WriteLine($"{kv.Key}: {(kv.Value ? "READY" : "WAIT")}");
