@@ -1,0 +1,31 @@
+{
+  "Name": "Arthas",
+  "Class": 0,
+  "Race": 2,
+  "Level": 2,
+  "HitPoints": 34,
+  "MaxHitPoints": 34,
+  "Attack": 6,
+  "Defense": 3,
+  "Initiative": 9,
+  "Position": {
+    "X": 1,
+    "Y": 1
+  },
+  "Inventory": {
+    "Items": [
+      {
+        "Name": "Sword +1",
+        "Type": 0,
+        "Power": 2
+      }
+    ],
+    "EquippedWeapon": {
+      "Name": "Sword +1",
+      "Type": 0,
+      "Power": 2
+    },
+    "EquippedArmor": null
+  },
+  "Statuses": []
+}
