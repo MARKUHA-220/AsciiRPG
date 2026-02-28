@@ -1,0 +1,78 @@
+using System.Text;
+using AsciiRPG.Gameplay;
+using AsciiRPG.Network;
+using AsciiRPG.Persistence;
+using AsciiRPG.UI;
+
+Console.OutputEncoding = Encoding.UTF8;
+Console.InputEncoding = Encoding.UTF8;
+
+var menu = new MenuSystem();
+var save = new SaveSystem();
+var engine = new GameEngine();
+var lan = new LanSession();
+
+while (true)
+{
+    var choice = menu.MainMenu();
+    switch (choice)
+    {
+        case 1:
+            Console.Write("DM name: ");
+            var dm = Console.ReadLine() ?? "DM";
+            Console.Write("Start LAN host for ready flags? (y/n): ");
+            var runHost = (Console.ReadLine() ?? "n").Equals("y", StringComparison.OrdinalIgnoreCase);
+            CancellationTokenSource? cts = null;
+            if (runHost)
+            {
+                Console.Write("LAN host port: ");
+                var hostPort = int.TryParse(Console.ReadLine(), out var hp) ? hp : 5050;
+                cts = new CancellationTokenSource();
+                _ = lan.StartHostAsync(hostPort, cts.Token);
+            }
+
+            var players = new List<AsciiRPG.Core.Character>();
+            Console.Write("Local players count (1-4): ");
+            var count = int.TryParse(Console.ReadLine(), out var c) ? Math.Clamp(c, 1, 4) : 1;
+            for (var i = 0; i < count; i++)
+            {
+                Console.WriteLine($"Create character #{i + 1}");
+                players.Add(menu.BuildCharacter());
+            }
+
+            var state = engine.StartNew(dm, players);
+            menu.ShowReadyMenu(state.ReadyFlags);
+            engine.Run(state);
+            cts?.Cancel();
+            break;
+
+        case 2:
+            Console.Write("Host IP: ");
+            var host = Console.ReadLine() ?? "127.0.0.1";
+            Console.Write("Port: ");
+            var port = int.TryParse(Console.ReadLine(), out var p) ? p : 5050;
+            Console.Write("Player name: ");
+            var nick = Console.ReadLine() ?? "Player";
+            await lan.JoinAsync(host, port, nick);
+            Console.WriteLine("Press Enter to return to menu");
+            Console.ReadLine();
+            break;
+
+        case 3:
+            Console.Write("Character save path (example: saves/character.json): ");
+            var path = Console.ReadLine() ?? "saves/character.json";
+            var character = save.LoadCharacter(path) ?? menu.BuildCharacter();
+            Console.WriteLine($"Current character: {character.Name} ({character.Race} {character.Class})");
+            Console.Write("New name (Enter to keep): ");
+            var newName = Console.ReadLine();
+            if (!string.IsNullOrWhiteSpace(newName)) character.Name = newName;
+            save.SaveCharacter(character, path);
+            Console.WriteLine($"Saved: {path}");
+            Console.WriteLine("Press Enter to return to menu");
+            Console.ReadLine();
+            break;
+
+        default:
+            return;
+    }
+}
