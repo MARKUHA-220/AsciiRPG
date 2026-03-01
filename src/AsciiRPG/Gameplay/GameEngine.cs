@@ -35,33 +35,31 @@ public class GameEngine
             {
                 UpdateFogOfWar(state.Map, p);
                 DrawMapForPlayer(state.Map, p);
-                Console.WriteLine($"Turn {state.TurnCounter}, player {p.Name}");
-                Console.Write("Command (w/a/s/d, inv, equip <name>, save, quit): ");
                 Console.WriteLine($"Ход {state.TurnCounter}, игрок {p.Name}");
                 Console.Write("Команда (w/a/s/d, inv, equip <name>, save, quit): ");
-                var cmd = Console.ReadLine() ?? "";
-                if (cmd == "quit") return;
-                if (cmd == "save")
+                var cmd = (Console.ReadLine() ?? "").Trim();
+                if (cmd.Equals("quit", StringComparison.OrdinalIgnoreCase)) return;
+                if (cmd.Equals("save", StringComparison.OrdinalIgnoreCase))
                 {
                     _save.SaveGame(state, "saves/game_save.json");
-                    Console.WriteLine("Game saved to saves/game_save.json");
-                    Console.WriteLine("Игра сохранена в saves/game_save.json");
+                    foreach (var player in state.Players)
+                        _save.SaveCharacterToSaves(player);
+                    Console.WriteLine("Игра и персонажи сохранены в папку saves");
                     continue;
                 }
 
                 HandleCommand(state, p, cmd);
                 ProcessTile(state, p);
+                _save.SaveCharacterToSaves(p);
 
                 if (state.Map.GetTile(p.Position).Type == TileType.Exit)
                 {
-                    Console.WriteLine("Victory! You found the dungeon exit.");
                     Console.WriteLine("Победа! Вы нашли выход из подземелья.");
                     return;
                 }
 
                 if (p.HitPoints <= 0)
                 {
-                    Console.WriteLine($"{p.Name} has fallen. Game over.");
                     Console.WriteLine($"{p.Name} пал. Игра окончена.");
                     return;
                 }
@@ -71,33 +69,61 @@ public class GameEngine
 
     private void HandleCommand(GameState state, Character p, string cmd)
     {
-        var delta = cmd switch
-        {
-            "w" => new Position(0, -1),
-            "s" => new Position(0, 1),
-            "a" => new Position(-1, 0),
-            "d" => new Position(1, 0),
-            _ => new Position(0, 0)
-        };
+        var normalized = cmd.Trim();
+        if (normalized.Length == 0) return;
 
-        if (cmd.StartsWith("equip ", StringComparison.OrdinalIgnoreCase))
+        if (normalized.StartsWith("equip ", StringComparison.OrdinalIgnoreCase))
         {
-            p.Inventory.Equip(cmd[6..]);
+            p.Inventory.Equip(normalized[6..].Trim());
             return;
         }
 
-        if (cmd == "inv")
+        if (normalized.Equals("inv", StringComparison.OrdinalIgnoreCase) || normalized.Equals("i", StringComparison.OrdinalIgnoreCase) || normalized.Equals("инв", StringComparison.OrdinalIgnoreCase))
         {
-            Console.WriteLine("Inventory:");
             Console.WriteLine("Инвентарь:");
-            foreach (var item in p.Inventory.Items) Console.WriteLine($"- {item.Name}");
+            if (p.Inventory.Items.Count == 0)
+            {
+                Console.WriteLine("- Пусто");
+                return;
+            }
+
+            foreach (var item in p.Inventory.Items)
+            {
+                var equipped = p.Inventory.EquippedWeapon == item || p.Inventory.EquippedArmor == item ? " [экипировано]" : string.Empty;
+                Console.WriteLine($"- {item.Name}{equipped}");
+            }
+            return;
+        }
+
+        var delta = normalized.ToLowerInvariant() switch
+        {
+            "w" or "ц" => new Position(0, -1),
+            "s" or "ы" => new Position(0, 1),
+            "a" or "ф" => new Position(-1, 0),
+            "d" or "в" => new Position(1, 0),
+            _ => new Position(0, 0)
+        };
+
+        if (delta == new Position(0, 0))
+        {
+            Console.WriteLine("Неизвестная команда.");
             return;
         }
 
         var np = new Position(p.Position.X + delta.X, p.Position.Y + delta.Y);
-        if (!state.Map.IsInBounds(np)) return;
+        if (!state.Map.IsInBounds(np))
+        {
+            Console.WriteLine("Дальше идти нельзя: граница карты.");
+            return;
+        }
+
         var tile = state.Map.GetTile(np);
-        if (tile.Type == TileType.Wall) return;
+        if (tile.Type == TileType.Wall)
+        {
+            Console.WriteLine("Там стена.");
+            return;
+        }
+
         p.Position = np;
     }
 
@@ -109,13 +135,11 @@ public class GameEngine
             case TileType.Chest:
                 var loot = _loot.RollLoot(p.Level);
                 p.Inventory.Items.Add(loot);
-                Console.WriteLine($"Chest: found item {loot.Name}");
                 Console.WriteLine($"Сундук: получен предмет {loot.Name}");
                 tile.Type = TileType.Room;
                 break;
             case TileType.Trigger:
                 p.Statuses.Add(new StatusEffect { Type = StatusType.Blessed, Duration = 3 });
-                Console.WriteLine("Trigger: Blessed status applied for 3 turns.");
                 Console.WriteLine("Триггер: на вас наложен статус Blessed на 3 хода.");
                 tile.Type = TileType.Room;
                 break;
@@ -125,7 +149,6 @@ public class GameEngine
                 if (win)
                 {
                     state.Enemies.Remove(enemy);
-                    Console.WriteLine("Enemy defeated.");
                     Console.WriteLine("Враг повержен.");
                     tile.Type = TileType.Room;
                 }
