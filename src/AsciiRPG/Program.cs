@@ -32,12 +32,17 @@ while (true)
             }
 
             var players = new List<AsciiRPG.Core.Character>();
+            var characterSaves = save.GetCharacterSaves();
             Console.Write("Сколько локальных игроков (1-4): ");
             var count = int.TryParse(Console.ReadLine(), out var c) ? Math.Clamp(c, 1, 4) : 1;
             for (var i = 0; i < count; i++)
             {
-                Console.WriteLine($"Создание персонажа #{i + 1}");
-                players.Add(menu.BuildCharacter());
+                Console.WriteLine($"Настройка персонажа #{i + 1}");
+                var selectedPath = menu.SelectCharacterSave(characterSaves);
+                var player = selectedPath is null ? menu.BuildCharacter() : save.LoadCharacter(selectedPath) ?? menu.BuildCharacter();
+                var savedPath = save.SaveCharacterToSaves(player);
+                Console.WriteLine($"Персонаж выбран: {player.Name}. Сохранен в {savedPath}");
+                players.Add(player);
             }
 
             var state = engine.StartNew(dm, players);
@@ -59,15 +64,15 @@ while (true)
             break;
 
         case 3:
-            Console.Write("Путь к сохранению персонажа (например saves/character.json): ");
-            var path = Console.ReadLine() ?? "saves/character.json";
-            var character = save.LoadCharacter(path) ?? menu.BuildCharacter();
+            var saves = save.GetCharacterSaves();
+            var selectedPath = menu.SelectCharacterSave(saves) ?? Path.Combine(SaveSystem.SavesDirectory, "character.json");
+            var character = save.LoadCharacter(selectedPath) ?? menu.BuildCharacter();
             Console.WriteLine($"Текущий персонаж: {character.Name} ({character.Race} {character.Class})");
             Console.Write("Новое имя (Enter чтобы оставить): ");
             var newName = Console.ReadLine();
             if (!string.IsNullOrWhiteSpace(newName)) character.Name = newName;
-            save.SaveCharacter(character, path);
-            Console.WriteLine($"Сохранено: {path}");
+            var savedPath = save.SaveCharacterToSaves(character);
+            Console.WriteLine($"Сохранено: {savedPath}");
             Console.WriteLine("Нажмите Enter для возврата в меню");
             Console.ReadLine();
             break;

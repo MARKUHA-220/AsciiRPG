@@ -41,4 +41,23 @@ public class MenuSystem
         foreach (var kv in readyFlags)
             Console.WriteLine($"{kv.Key}: {(kv.Value ? "READY" : "WAIT")}");
     }
+
+    public string? SelectCharacterSave(IReadOnlyList<string> saves)
+    {
+        if (saves.Count == 0)
+        {
+            Console.WriteLine("Сохраненных персонажей не найдено.");
+            return null;
+        }
+
+        Console.WriteLine("Выберите персонажа из папки saves:");
+        for (var i = 0; i < saves.Count; i++)
+            Console.WriteLine($"{i + 1}. {Path.GetFileNameWithoutExtension(saves[i])}");
+
+        Console.Write("Номер (Enter — создать нового): ");
+        var input = Console.ReadLine();
+        if (!int.TryParse(input, out var selected)) return null;
+        var index = selected - 1;
+        return index >= 0 && index < saves.Count ? saves[index] : null;
+    }
 }
