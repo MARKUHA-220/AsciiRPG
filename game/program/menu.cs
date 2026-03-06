@@ -1,21 +1,18 @@
 namespace AsciiRPG.Game.Program;
 
-internal sealed class Menu
-{
-    public string? ShowMainMenu()
-    {
+internal sealed class Menu{
+    public string? ShowMainMenu(){
         Console.Clear();
         Console.WriteLine("=== ASCII RPG ===");
         Console.WriteLine("1. Новая игра");
         Console.WriteLine("2. Загрузить игру");
-        Console.WriteLine("3. Выход");
-        Console.Write("Выбери пункт (1-3): ");
+        Console.WriteLine("3. Редактор персонажа");
+        Console.WriteLine("4. Выход");
+        Console.Write("Выбери пункт: ");
 
         return Console.ReadLine()?.Trim();
     }
-
-    public static bool IsExitCommand(string? command)
-    {
-        return command is "3" or "q" or "Q";
+    public static bool IsExitCommand(string? command){
+        return command is "4" or "q" or "Q";
     }
 }

@@ -2,18 +2,15 @@ using AsciiRPG.Game.Program;
 
 var menu = new Menu();
 
-while (true)
-{
+while (true){
     var command = menu.ShowMainMenu();
 
-    if (Menu.IsExitCommand(command))
-    {
+    if (Menu.IsExitCommand(command)){
         Console.WriteLine("До встречи в ASCII RPG!");
         break;
     }
 
-    switch (command)
-    {
+    switch (command){
         case "1":
             Console.WriteLine("Новая игра скоро будет доступна.");
             break;
